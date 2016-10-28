@@ -5,7 +5,6 @@
  */
 package edu.usf.cutr.OPC;
 
-import edu.usf.cutr.OPC.backends.GetFile;
 import edu.usf.cutr.OPC.gtfs.GtfsStatisticsService;
 import java.io.File;
 import java.io.IOException;
@@ -130,8 +129,8 @@ public class FeedProcessor {
                 if(parsedEndDate != null)
                     endTimestamp = new java.sql.Timestamp(parsedEndDate.getTime());
                 
-                String filePath = getSaveFilePath();
-                DatabaseConnectionInfo dbInfo = new DatabaseConnectionInfo(filePath);
+                String fileName = "/info.txt";
+                DatabaseConnectionInfo dbInfo = new DatabaseConnectionInfo(fileName);
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 Properties properties = new Properties();
                 
@@ -212,18 +211,6 @@ public class FeedProcessor {
                 conn.commit();
                 System.out.println("\nFinished updating table\n");
 	}
-        
-        private String getSaveFilePath() {
-                String saveFilePath;
-                GetFile jarInfo = new GetFile();
-
-                //remove file.jar from the path to get the folder where the jar is
-                File jarLocation = jarInfo.getJarLocation().getParentFile();
-                String saveDir = jarLocation.toString();
-
-                saveFilePath = saveDir + File.separator + "info.txt";
-                return saveFilePath;
-        }
         
         public Float distbetweenPoints(Double lat1, Double lng1, Double lat2, Double lng2) {
                 Double earthRadius = new Double(6371000); //meters
