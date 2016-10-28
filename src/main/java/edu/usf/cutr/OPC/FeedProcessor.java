@@ -144,8 +144,7 @@ public class FeedProcessor {
                 System.out.println("\nConnected to Database: " + dbInfo.getDatabase());
 		String sql = "SELECT TOP (15) [timestamp], [trip_id], [position_latitude], [position_longitude]\n" +
                                 "  FROM [gtfsrdb_HART_static_10-17-2016].[dbo].[vehicle_positions]" +
-                                "  WHERE [timestamp] >= ? AND [timestamp] <= ?" +
-                                "  ORDER BY [timestamp] DESC";
+                                "  WHERE [timestamp] >= ? AND [timestamp] <= ?";
                 
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setTimestamp(1, startTimestamp);
