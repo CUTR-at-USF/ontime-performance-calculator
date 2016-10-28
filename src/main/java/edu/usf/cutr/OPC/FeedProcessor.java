@@ -14,14 +14,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
 import org.onebusaway.csv_entities.exceptions.CsvEntityIOException;
@@ -107,27 +105,18 @@ public class FeedProcessor {
                 List<String> closestStopIdList = new ArrayList<String>();
                 List<Timestamp> timestampList = new ArrayList<Timestamp>();
                 
-                String calSvcStart = stats.getCalendarServiceRangeStart().toString();
-		String calSvcEnd = stats.getCalendarServiceRangeEnd().toString();
+                Date calSvcStart = stats.getCalendarServiceRangeStart();
+		Date calSvcEnd = stats.getCalendarServiceRangeEnd();
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
                 
-                Date parsedStartDate = null;
-                Date parsedEndDate = null;
                 Timestamp startTimestamp = null;
                 Timestamp endTimestamp = null;
                 
-                try {
-                    parsedStartDate = dateFormat.parse(calSvcStart);
-                    parsedEndDate = dateFormat.parse(calSvcEnd);                    
-                } catch (ParseException ex) {
-                    Logger.getLogger(FeedProcessor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-                if(parsedStartDate != null)
-                    startTimestamp = new java.sql.Timestamp(parsedStartDate.getTime());
-                if(parsedEndDate != null)
-                    endTimestamp = new java.sql.Timestamp(parsedEndDate.getTime());
+                if(calSvcStart != null)
+                    startTimestamp = new java.sql.Timestamp(calSvcStart.getTime());
+                if(calSvcEnd != null)
+                    endTimestamp = new java.sql.Timestamp(calSvcEnd.getTime());
                 
                 String fileName = "/info.txt";
                 DatabaseConnectionInfo dbInfo = new DatabaseConnectionInfo(fileName);
