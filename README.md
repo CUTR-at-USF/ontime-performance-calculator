@@ -37,7 +37,7 @@ With maven installed on the system package the project to build the executable.
 
 The second step would generate an executable file in the `target/` directory with all the dependencies needed to run the application.
 
-Before actually running the application, create an **info.txt** file in project's `target/` folder. This file should contain information needed to connect to remote microsoft SQL server
+Before actually running the application, create an **info.txt** file in project's `src/main/resources` folder. This file should contain information needed to connect to remote microsoft SQL server
   - `info.txt` file should definitely have the following information. Each line basically contains a tag and it's value separated by `:` 
     * server : name of the server to connect to
     * username : name of the user
