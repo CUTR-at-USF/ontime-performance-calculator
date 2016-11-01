@@ -1,4 +1,4 @@
-# Ontime-Performance-Calculator
+# Ontime-Performance-Calculator [![Build Status](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator.svg?branch=master)](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator)
 An application to calculate on-time performance using GTFS-realtime data
 ## Prerequisites
 
