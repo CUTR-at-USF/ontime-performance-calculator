@@ -3,31 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.usf.cutr.OPC;
+package edu.usf.cutr.ontimeperformance;
 
-import edu.usf.cutr.OPC.gtfs.GtfsStatisticsService;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.logging.Logger;
-import java.util.zip.ZipException;
+import edu.usf.cutr.ontimeperformance.gtfs.GtfsStatisticsService;
 import org.onebusaway.csv_entities.exceptions.CsvEntityIOException;
 import org.onebusaway.csv_entities.exceptions.MissingRequiredFieldException;
 import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
 import org.onebusaway.gtfs.model.AgencyAndId;
 import org.onebusaway.gtfs.model.StopTime;
 import org.onebusaway.gtfs.serialization.GtfsReader;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
+import java.util.logging.Logger;
+import java.util.zip.ZipException;
 
 //import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
 //import org.onebusaway.gtfs.serialization.GtfsReader;
