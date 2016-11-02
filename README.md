@@ -1,49 +1,59 @@
-# Ontime-Performance-Calculator [![Build Status](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator.svg?branch=master)](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator)
-An application to calculate on-time performance using GTFS-realtime data
+# ontime-performance-calculator [![Build Status](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator.svg?branch=master)](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator)
+
+An application to calculate on-time performance using GTFS-realtime data that has been archived using the [gtfsrdb](https://github.com/mattwigway/gtfsrdb) tool.
+
 ## Prerequisites
 
-The Ontime-Performance-Calculator is built using Java technologies. Maven is the build management tool for this project. 
+The On-time Performance Calculator is written in Java. Maven is the build management tool for this project. 
 
-Following are the requirements to get the project up and running.
+Following are the requirements to get the project up and running:
 
-* Access to a terminal
-* JDK installed on the system
-* Maven installed on the system
-* (optional) git installed on the system to clone the repository
+* [JDK 6 or higher](http://www.oracle.com/technetwork/es/java/javase/downloads/index.html)
+* [Apache Maven](https://maven.apache.org/)
+* *(Optional)* [Git](https://git-scm.com/) to clone the Github repository
+
+Note that you can also use an integrated development environment (IDE) such as [Netbeans](https://netbeans.org/) or [IntelliJ](https://www.jetbrains.com/idea/) to build the project, which usually includes integrated support for Maven and Git.
+
+You'll also need data:
+
+* **GTFS data** - A zip file containing GTFS data from the same time period as the archived GTFS-realtime data.  Check out [TransitFeeds.com](http://transitfeeds.com/) or [GTFS Data Exchange *(Deprecated)*](http://www.gtfs-data-exchange.com/) to find archived GTFS data. 
+* **Archived GTFS-realtime data** - Data in a relational database (e.g., MS SQL Server) that has been archived using the [gtfsrdb](https://github.com/mattwigway/gtfsrdb) tool (or another tool that uses the same database schema) 
+
+The following instructions are for building the project from the command line using Maven.
 
 ## 1. Download the code
 
-The source files would be needed in order to build the jar file. You can obtain them by downloading the files directly or by cloning the git repository (recommended).
+The source files are needed in order to build the jar file. You can obtain them by downloading the files directly or by cloning the Git repository (recommended).
 
-  - Download zipped version of the repository
+  * Download zipped version of the repository
 
-Download the current snapshot of the project to your local machine using the "Download Zip" link on the project home page. (https://github.com/CUTR-at-USF/ontime-performance-calculator)
+    Download the current snapshot of the project to your local machine using the "Download Zip" link on the project home page. (https://github.com/CUTR-at-USF/ontime-performance-calculator)
 
   - Clone this repository to your local machine.
 
-With git installed on the system clone the repository to your local machine.
+    With git installed on the system clone the repository to your local machine.
 
-git clone https://github.com/CUTR-at-USF/ontime-performance-calculator.git
+    `git clone https://github.com/CUTR-at-USF/ontime-performance-calculator.git`
 
 ## 2. Build the project
 
-Using maven the project should be built. This process would create an executable jar.
-
-With maven installed on the system package the project to build the executable.
+From the command-line:
 
 `mvn install`
 
 ## 3. Run the application
 
-The second step would generate an executable file in the `target/` directory with all the dependencies needed to run the application.
+The above step will generate an executable file in the `target/` directory with all the dependencies needed to run the application.
 
-Before actually running the application, create an **info.txt** file in project's `src/main/resources` folder. This file should contain information needed to connect to remote microsoft SQL server
-  - `info.txt` file should definitely have the following information. Each line basically contains a tag and it's value separated by `:` 
+Before running the application, create an **info.txt** file in project's `src/main/resources` folder. This file should contain information needed to connect to Microsoft SQL Server database:
+  - `info.txt` file should have the following information. Each line contains a tag and it's value separated by `:` 
     * server : name of the server to connect to
     * username : name of the user
     * password : user password
     * database : name of the database to connect to
   
-Finally, to run the application execute the command
+Finally, to run the application execute the command:
 
 `java -jar target/ontime-performance-calculator.jar path/to/GTFS_file.zip`
+
+Note that this project is currently configured to connect to a SQL Server database, but other relational databases are also supported.
