@@ -1,2 +1,9 @@
 /target/
 /src/main/resources/info.txt
+release.properties
+pom.xml.releaseBackup
+.settings
+.project
+.classpath
+/.idea/
+*.iml
