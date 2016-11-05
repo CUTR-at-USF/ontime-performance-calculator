@@ -121,6 +121,7 @@ public class FeedProcessor {
                 
                 String fileName = "/info.txt";
                 DatabaseConnectionInfo dbInfo = new DatabaseConnectionInfo(fileName);
+                String database = dbInfo.getDatabase();
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 Properties properties = new Properties();
                 
@@ -136,6 +137,7 @@ public class FeedProcessor {
                     return;
                 }
                 
+                String dbTable = "[" +database + "].[dbo].[vehicle_positions]";
                 System.out.println("\nConnected to Database: " + dbInfo.getDatabase());
 		String sql = "SELECT TOP (15) [timestamp], [trip_id], [position_latitude], [position_longitude]\n" +
                                 "  FROM [gtfsrdb_HART_static_10-17-2016].[dbo].[vehicle_positions]" +
@@ -185,9 +187,11 @@ public class FeedProcessor {
                             }
                         }
                     }
-                    minDistList.add(minDist);
-                    closestStopIdList.add(closeStop);
-                    timestampList.add(timestamp);
+                    if(counter == 1) { // check whether GTFS data contains trip_id_rt, if contains add minDist, closeStop, etc values to respective lists
+                        minDistList.add(minDist);
+                        closestStopIdList.add(closeStop);
+                        timestampList.add(timestamp);
+                    }
                 }                
                 
                 sql = "UPDATE [gtfsrdb_HART_static_10-17-2016].[dbo].[vehicle_positions]\n" +
@@ -206,6 +210,14 @@ public class FeedProcessor {
                     System.out.println("\nSuccesssfully executed batch update");
                 conn.commit();
                 System.out.println("\nFinished updating table\n");
+                    
+                ClosestToStop cts = new ClosestToStop(dbTable);
+                ps = conn.prepareStatement(cts.updateClosestToStopField());
+                ps.setTimestamp(1, startTimestamp);
+                ps.setTimestamp(2, endTimestamp);
+                ps.executeUpdate();
+                conn.commit();
+                conn.close();                
 	}
         
         public Float distbetweenPoints(Double lat1, Double lng1, Double lat2, Double lng2) {
