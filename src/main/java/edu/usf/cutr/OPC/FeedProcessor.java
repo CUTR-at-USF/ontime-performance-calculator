@@ -96,7 +96,8 @@ public class FeedProcessor {
 		catch (IOException e) {
 			output.loadStatus = LoadStatus.OTHER_FAILURE;
 		}
-                System.err.println("\nLoadStatus : " + output.loadStatus + "\nloadFailureReason : "+ output.loadFailureReason);
+                System.err.println("\nLoadStatus of GTFS Feed: " + output.loadStatus);
+                if(output.loadFailureReason != null) System.err.println("loadFailureReason of GTFS Feed: "+ output.loadFailureReason);
                 
                 GtfsStatisticsService stats = new GtfsStatisticsService(dao);
                 
@@ -127,7 +128,13 @@ public class FeedProcessor {
                 properties.setProperty("user", dbInfo.getUsername());
                 properties.setProperty("password", dbInfo.getPassword());
                 properties.setProperty("database", dbInfo.getDatabase());
-                Connection conn = DriverManager.getConnection(URL, properties);
+                Connection conn = null;
+                try {
+                    conn = DriverManager.getConnection(URL, properties);
+                } catch (SQLException ex) {
+                    System.err.println("\nERROR: Database access error. Ensure the details provided in 'info.txt' file are correct.\n");
+                    return;
+                }
                 
                 System.out.println("\nConnected to Database: " + dbInfo.getDatabase());
 		String sql = "SELECT TOP (15) [timestamp], [trip_id], [position_latitude], [position_longitude]\n" +

@@ -6,12 +6,9 @@
 package edu.usf.cutr.OPC;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DatabaseConnectionInfo {
     private String username;
@@ -19,7 +16,7 @@ public class DatabaseConnectionInfo {
     private String database;
     private String server;
     
-    protected DatabaseConnectionInfo(String inputFile) {
+    protected DatabaseConnectionInfo(String inputFile) throws IOException {
         setFields(inputFile);
     }
     
@@ -39,8 +36,13 @@ public class DatabaseConnectionInfo {
         this.server = serverName;
     }
     
-    private void setFields(String input) {
+    private void setFields(String input) throws IOException {
         InputStream file = getClass().getResourceAsStream(input);
+        if(file == null) {
+            System.err.println("\nERROR: Could not find 'info.txt' file in src/main/resources folder."
+                    + " Read README file to know more about 'info.txt' file\n");
+            System.exit(0);
+        }
         try {
             String[] keyValue;
             String data;
@@ -59,18 +61,10 @@ public class DatabaseConnectionInfo {
                 else if(keyValue[0].equals("server"))
                     setServer(keyValue[1]);
             }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(DatabaseConnectionInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(DatabaseConnectionInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(file != null)
-                    file.close();
-            } catch (IOException ex) {
-                Logger.getLogger(DatabaseConnectionInfo.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
+        finally {
+                file.close();
+            }
     }
     
     protected String getUsername() {
