@@ -7,9 +7,11 @@ package edu.usf.cutr.OPC;
 
 public class ClosestToStop {
     private final String dbTable;
+    private final int numRecords;
     
-    public ClosestToStop(String dbTable) {
+    public ClosestToStop(String dbTable, int numRecords) {
         this.dbTable = dbTable;
+        this.numRecords = numRecords;
     }
 
     /* forms an update statement to update closest_to_stop field
@@ -17,12 +19,16 @@ public class ClosestToStop {
       By grouping trip_id, closest_stop_id and, date we calculate MIN(distance_to_stop) and update
       closest_to_stop on condition which recognizes unique record using trip_id, closest_stop_id, date and, min_dist*/
     public final String updateClosestToStopField() {
+        String select;
+            if(numRecords > 0)
+                select = "SELECT TOP("+numRecords+")";
+            else select = "SELECT";
         String innerQuery =   " (SELECT MIN([distance_to_stop]) AS [min_dist],"+
                                         " [trip_id],"+
                                         " [closest_stop_id],"+
                                         " result.[date] AS [date] \n" +
                               " FROM \n" +
-                                      "(SELECT TOP(10000)  [oid],"+ //tested on top 10000 rows; need to change to * to reteive all elements
+                                      "("+select+" [oid],"+
                                            " [distance_to_stop],"+
                                            " [trip_id],"+
                                            " [closest_stop_id],"+

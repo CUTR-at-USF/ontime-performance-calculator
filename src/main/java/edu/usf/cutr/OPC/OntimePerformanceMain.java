@@ -16,14 +16,23 @@ public class OntimePerformanceMain {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("usage: java -jar target/jarfilename.jar path/to/input_gtfs.zip");
+        if (args.length < 1) {
+            System.err.println("\nusage: java -jar target/jarfilename.jar path/to/input_gtfs.zip Number_of"
+                    + "_records_to_fetch \nThe seond argument is optional. If it not provided we retreive all records");
             return;
         }
 
         File input = new File(args[0]);
+        int numRecords = 0;
+        if(args.length == 2) {
+            numRecords = Integer.parseInt(args[1]);
+            if(numRecords <= 0) {
+                System.err.println("\nThe second parameter 'Number of records to fetch' should be greater than 0");
+                return;
+            }
+        }
         System.err.println("\nProcessing feed :" + input.getName());
-        FeedProcessor processor = new FeedProcessor(input);
+        FeedProcessor processor = new FeedProcessor(input, numRecords);
         try {
             processor.load();
         } catch (IOException e) {
