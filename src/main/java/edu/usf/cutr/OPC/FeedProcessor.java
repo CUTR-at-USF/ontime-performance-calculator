@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
 import org.onebusaway.csv_entities.exceptions.CsvEntityIOException;
@@ -33,17 +34,21 @@ import org.onebusaway.gtfs.serialization.GtfsReader;
 //import org.onebusaway.gtfs.serialization.GtfsReader;
 
 public class FeedProcessor {
+        public static final int MISSING_VALUE = -999;
 	private File feed;
 	private GtfsRelationalDaoImpl dao;
         private FeedValidationResult output;
+        private final int numRecords;
 	private static Logger _log = Logger.getLogger(FeedProcessor.class.getName());
 	
 	/**
 	 * Create a feed processor for the given feed
 	 * @param feed
+         * @param numRecords
 	 */
-	public FeedProcessor (File feed) {
+	public FeedProcessor (File feed, int numRecords) {
 		this.feed = feed;
+                this.numRecords = numRecords;
                 this.output = new FeedValidationResult();
 	}
 	
@@ -104,12 +109,14 @@ public class FeedProcessor {
                 Collection<StopTime> stopTimes = dao.getAllStopTimes();
                 List<Float> minDistList = new ArrayList<Float>();
                 List<String> closestStopIdList = new ArrayList<String>();
-                List<Timestamp> timestampList = new ArrayList<Timestamp>();
+                List<Integer> oidList = new ArrayList<Integer>();
+                List<Long> sched_deviation = new ArrayList<Long>();
+                List<Integer> timepointList = new ArrayList<Integer>();
                 
                 Date calSvcStart = stats.getCalendarServiceRangeStart();
 		Date calSvcEnd = stats.getCalendarServiceRangeEnd();
                 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
                 
                 Timestamp startTimestamp = null;
                 Timestamp endTimestamp = null;
@@ -138,10 +145,15 @@ public class FeedProcessor {
                 }
                 
                 String dbTable = "[" +database + "].[dbo].[vehicle_positions]";
-                System.out.println("\nConnected to Database: " + dbInfo.getDatabase());
-		String sql = "SELECT TOP (15) [timestamp], [trip_id], [position_latitude], [position_longitude]\n" +
-                                "  FROM [gtfsrdb_HART_static_10-17-2016].[dbo].[vehicle_positions]" +
-                                "  WHERE [timestamp] >= ? AND [timestamp] <= ?";
+                System.out.println("\nConnected to Database: " + database);
+                String select;
+                if(numRecords > 0)
+                    select = "SELECT TOP("+numRecords+") ";
+                else select = "SELECT ";
+		String sql = select+"[oid], [timestamp], [trip_id], [position_latitude], [position_longitude]\n" +
+                                "  FROM [" +database + "].[dbo].[vehicle_positions]" +
+                                "  WHERE [timestamp] >= ? AND [timestamp] <= ?" +
+                                "  ORDER BY [oid] DESC";
                 
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setTimestamp(1, startTimestamp);
@@ -150,20 +162,34 @@ public class FeedProcessor {
                 System.out.println("\nGTFS Data Valid End Date: " + endTimestamp);
 		ResultSet rs = ps.executeQuery();
                 
+                sql = "UPDATE [" +database + "].[dbo].[vehicle_positions]\n" +
+                        "SET [closest_stop_id] = ?, [distance_to_stop] = ?, [schedule_deviation] = ?, [timepoint] = ? \n" +
+                        "WHERE [oid] = ?";
+                ps = conn.prepareStatement(sql);
+                long rt_arrivaltime;
+                String timezone = dao.getAllAgencies().iterator().next().getTimezone(); //if there are more than one agencies, they still have same timezone.
 		while (rs.next()) {
                     String trip_id_rt = rs.getString("trip_id"); //gtfs-rt trip id
                     Double latVal = Double.parseDouble(Float.toString(rs.getFloat("position_latitude")));
                     Double lonVal = Double.parseDouble(Float.toString(rs.getFloat("position_longitude")));
-                    Timestamp timestamp = rs.getTimestamp("timestamp");
+                    Timestamp timestampUT = rs.getTimestamp("timestamp");
+                    
+                    Date timestampEST = new Date(timestampUT.getTime() + TimeZone.getTimeZone(timezone).getRawOffset());
+                    Integer oid = rs.getInt("oid");
+                    
+                    String formatted = timeFormat.format(timestampEST.getTime());
+                    rt_arrivaltime = getTimeInSeconds(formatted);
                     
                     int counter = 0;
                     Float dist;
                     Float minDist = null;
                     String closeStop = null;
-                    
+                    long arrival_time = 0;
+                    int timepoint = MISSING_VALUE;                    
                     for (StopTime stopTime : stopTimes) {
                         AgencyAndId id = stopTime.getTrip().getId();
                         String trip_id = id.getId(); //gtfs trip id
+                        boolean timepointSet = stopTime.isTimepointSet();
                         
                         if(trip_id.equals(trip_id_rt))
                         {
@@ -176,6 +202,9 @@ public class FeedProcessor {
                             if(counter == 0) {
                                 minDist = distbetweenPoints(lat, lon, latVal, lonVal);
                                 closeStop = stop_id;
+                                arrival_time = stopTime.getArrivalTime();
+                                if(timepointSet)
+                                    timepoint = stopTime.getTimepoint();
                                 counter = 1;
                             }
                             else {
@@ -183,6 +212,9 @@ public class FeedProcessor {
                                 if(minDist > dist) {
                                     minDist = dist;
                                     closeStop = stop_id;
+                                    arrival_time = stopTime.getArrivalTime();
+                                    if(timepointSet)
+                                        timepoint = stopTime.getTimepoint();
                                 }
                             }
                         }
@@ -190,34 +222,60 @@ public class FeedProcessor {
                     if(counter == 1) { // check whether GTFS data contains trip_id_rt, if contains add minDist, closeStop, etc values to respective lists
                         minDistList.add(minDist);
                         closestStopIdList.add(closeStop);
-                        timestampList.add(timestamp);
+                        oidList.add(oid);
+                        if(rt_arrivaltime >= 0 && rt_arrivaltime <= 10800) //if rt_arrival_time is between midnight and 3am, treat as same day of service ;
+                            rt_arrivaltime = rt_arrivaltime + 86400; // add 1 day; for eg. if it's 1:00:00am, make it 25:00:00
+                        sched_deviation.add((rt_arrivaltime - arrival_time)*1000); //in milliseconds
+                        if(timepoint == MISSING_VALUE)
+                            timepointList.add(null);
+                        else timepointList.add(timepoint);
                     }
-                }                
-                
-                sql = "UPDATE [gtfsrdb_HART_static_10-17-2016].[dbo].[vehicle_positions]\n" +
-                        "SET [closest_stop_id] = ?, [distance_to_stop] = ?\n" +
-                        "WHERE [timestamp] = ?";
-                ps = conn.prepareStatement(sql); 
+                     
+                    if(minDistList.size() == 10000) { //executes batch updates of 10,000 rows each time
+                        for(int i = minDistList.size() - 1; i >= 0 ; i--) {
+                            ps.setString(1, closestStopIdList.get(i));
+                            ps.setFloat(2, minDistList.get(i));
+                            ps.setLong(3, sched_deviation.get(i));
+                            ps.setInt(4, timepointList.get(i));
+                            ps.setInt(5, oidList.get(i));                    
+                            ps.addBatch();
+                        }
+                        int update[] = ps.executeBatch();
+                        if(update.length != minDistList.size()) {
+                            System.err.println("\nUPDATE ERROR");
+                            return;
+                        }
+                        closestStopIdList.clear();
+                        minDistList.clear();
+                        sched_deviation.clear();
+                        timepointList.clear();
+                        oidList.clear();
+                    }
+                }
                 
                 for(int i = minDistList.size() - 1; i >= 0 ; i--) {
                     ps.setString(1, closestStopIdList.get(i));
                     ps.setFloat(2, minDistList.get(i));
-                    ps.setTimestamp(3, timestampList.get(i));
+                    ps.setLong(3, sched_deviation.get(i));
+                    ps.setInt(4, timepointList.get(i));
+                    ps.setInt(5, oidList.get(i));                  
                     ps.addBatch();
                 }
                 int update[] = ps.executeBatch();
-                if(update.length == minDistList.size())
-                    System.out.println("\nSuccesssfully executed batch update");
+                if(update.length != minDistList.size()) {
+                    System.err.println("\nUPDATE ERROR");
+                    return;
+                }
                 conn.commit();
-                System.out.println("\nFinished updating table\n");
                     
-                ClosestToStop cts = new ClosestToStop(dbTable);
+                ClosestToStop cts = new ClosestToStop(dbTable, numRecords);
                 ps = conn.prepareStatement(cts.updateClosestToStopField());
                 ps.setTimestamp(1, startTimestamp);
                 ps.setTimestamp(2, endTimestamp);
                 ps.executeUpdate();
                 conn.commit();
-                conn.close();                
+                conn.close();
+                System.out.println("Finished updating table");                
 	}
         
         public Float distbetweenPoints(Double lat1, Double lng1, Double lat2, Double lng2) {
@@ -232,5 +290,11 @@ public class FeedProcessor {
                     dist = new Float(earthRadius * c);
 
                 return dist; //in meters
+        }
+        public Long getTimeInSeconds(String time) { //time is in HH:mm:ss format
+            String[] timeSplit = time.split(":");
+            return Long.parseLong(timeSplit[0])*3600
+                    + Long.parseLong(timeSplit[1])*60
+                    + Long.parseLong(timeSplit[2]);
         }
 }
