@@ -39,6 +39,7 @@ public class FeedProcessor {
 	private GtfsRelationalDaoImpl dao;
         private FeedValidationResult output;
         private final int numRecords;
+        private final String arrivalOrDeparture;
 	private static Logger _log = Logger.getLogger(FeedProcessor.class.getName());
 	
 	/**
@@ -46,9 +47,10 @@ public class FeedProcessor {
 	 * @param feed
          * @param numRecords
 	 */
-	public FeedProcessor (File feed, int numRecords) {
+	public FeedProcessor (File feed, String arrivalOrDeparture, int numRecords) {
 		this.feed = feed;
                 this.numRecords = numRecords;
+                this.arrivalOrDeparture = arrivalOrDeparture;
                 this.output = new FeedValidationResult();
 	}
 	
@@ -202,7 +204,9 @@ public class FeedProcessor {
                             if(counter == 0) {
                                 minDist = distbetweenPoints(lat, lon, latVal, lonVal);
                                 closeStop = stop_id;
-                                arrival_time = stopTime.getArrivalTime();
+                                if(arrivalOrDeparture.equals("arrival_time"))
+                                    arrival_time = stopTime.getArrivalTime();
+                                else arrival_time = stopTime.getDepartureTime();
                                 if(timepointSet)
                                     timepoint = stopTime.getTimepoint();
                                 counter = 1;
@@ -212,7 +216,9 @@ public class FeedProcessor {
                                 if(minDist > dist) {
                                     minDist = dist;
                                     closeStop = stop_id;
-                                    arrival_time = stopTime.getArrivalTime();
+                                    if(arrivalOrDeparture.equals("arrival_time"))
+                                        arrival_time = stopTime.getArrivalTime();
+                                    else arrival_time = stopTime.getDepartureTime();
                                     if(timepointSet)
                                         timepoint = stopTime.getTimepoint();
                                 }

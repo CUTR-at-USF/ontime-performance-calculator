@@ -16,23 +16,29 @@ public class OntimePerformanceMain {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.err.println("\nusage: java -jar target/jarfilename.jar path/to/input_gtfs.zip Number_of"
-                    + "_records_to_fetch \nThe seond argument is optional. If it not provided we retreive all records");
+        if (args.length < 2) {
+            System.err.println("\nusage: java -jar target/jarfilename.jar <path/to/input_gtfs.zip>  <arrival_timeORdeparture_time>  <Number_of"
+                    + "_records_to_fetch> \nThe second argument specify whether to consider arrival_time or departure_time to calculate schedule_deviation"
+                    + "\nThe third argument is optional, which specify number of records to fetch. If it not provided we retreive all records");
             return;
         }
 
         File input = new File(args[0]);
+        String arrivalOrDeparture = args[1].toLowerCase();
+        if(!arrivalOrDeparture.equals("arrival_time") && !arrivalOrDeparture.equals("departure_time")) {
+            System.err.println("\nPlease check spelling of the string provided as second argument. It should be either arrival_time or departure_time");
+            return;
+        }
         int numRecords = 0;
-        if(args.length == 2) {
-            numRecords = Integer.parseInt(args[1]);
+        if(args.length == 3) {
+            numRecords = Integer.parseInt(args[2]);
             if(numRecords <= 0) {
-                System.err.println("\nThe second parameter 'Number of records to fetch' should be greater than 0");
+                System.err.println("\nThe third parameter 'Number of records to fetch' should be greater than 0");
                 return;
             }
         }
         System.err.println("\nProcessing feed :" + input.getName());
-        FeedProcessor processor = new FeedProcessor(input, numRecords);
+        FeedProcessor processor = new FeedProcessor(input, arrivalOrDeparture, numRecords);
         try {
             processor.load();
         } catch (IOException e) {
