@@ -1,6 +1,6 @@
 # ontime-performance-calculator [![Build Status](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator.svg?branch=master)](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator)
 
-An application to calculate on-time performance using GTFS-realtime data that has been archived using the [gtfsrdb](https://github.com/mattwigway/gtfsrdb) tool.
+An application to calculate on-time performance using GTFS-realtime data that has been archived using the [gtfsrdb](https://github.com/ CUTR-at-USF/gtfsrdb) tool.
 
 For more about what this tool does, please see the chapter "Producing On-time Performance from GTFS-realtime Data" in [this final report](https://www.dropbox.com/s/v05z1w7td1kpqd9/Transit_Service_Reliability_Final_Report.pdf?dl=0).
 
@@ -60,7 +60,7 @@ Finally, to run the application execute the command:
 
   - The application takes three arguments    
     1.	Path to static GTFS zip file
-    2.	‘arrival_time’ or ‘departure_time’. This argument tells the application whether to calculate schedule_deviation using           arrival_time or departure_time at each stop
-    3.	Specify number of records to fetch from database table. This argument is optional. If it’s not provided, we retrieve all records from the table
+    2.	â€˜arrival_timeâ€™ or â€˜departure_timeâ€™. This argument tells the application whether to calculate schedule_deviation using           arrival_time or departure_time at each stop
+    3.	Specify number of records to fetch from database table. This argument is optional. If itâ€™s not provided, we retrieve all records from the table
 
 Note that this project is currently configured to connect to a SQL Server database, but other relational databases are also supported.
