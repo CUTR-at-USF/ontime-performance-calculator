@@ -1,6 +1,6 @@
 # ontime-performance-calculator [![Build Status](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator.svg?branch=master)](https://travis-ci.org/CUTR-at-USF/ontime-performance-calculator)
 
-An application to calculate on-time performance using GTFS-realtime data that has been archived using the [gtfsrdb](https://github.com/ CUTR-at-USF/gtfsrdb) tool.
+An application to calculate on-time performance using GTFS-realtime data that has been archived using the [gtfsrdb](https://github.com/CUTR-at-USF/gtfsrdb) tool.
 
 For more about what this tool does, please see the chapter "Producing On-time Performance from GTFS-realtime Data" in [this final report](https://www.dropbox.com/s/v05z1w7td1kpqd9/Transit_Service_Reliability_Final_Report.pdf?dl=0).
 
