@@ -47,12 +47,12 @@ From the command-line:
 
 The above step will generate an executable file in the `target/` directory with all the dependencies needed to run the application.
 
-Before running the application, create an **info.txt** file in project's `src/main/resources` folder. This file should contain information needed to connect to Microsoft SQL Server database:
+Before running the application, create an `info.txt` file in project's `src/main/resources` folder. This file should contain information needed to connect to Microsoft SQL Server database:
   - `info.txt` file should have the following information. Each line contains a tag and it's value separated by `:` 
-    * server : name of the server to connect to
-    * username : name of the user
-    * password : user password
-    * database : name of the database to connect to
+    * `server : name of the server to connect to`
+    * `username : name of the user`
+    * `password : user password`
+    * `database : name of the database to connect to`
   
 Finally, to run the application execute the command:
 
@@ -60,7 +60,7 @@ Finally, to run the application execute the command:
 
   - The application takes three arguments    
     1.	Path to static GTFS zip file
-    2.	‘arrival_time’ or ‘departure_time’. This argument tells the application whether to calculate schedule_deviation using           arrival_time or departure_time at each stop
-    3.	Specify number of records to fetch from database table. This argument is optional. If it’s not provided, we retrieve all records from the table
+    2.	`arrival_time` or `departure_time` - This argument tells the application whether to calculate schedule_deviation using           arrival_time or departure_time at each stop
+    3.	Specify number of records to fetch from database table - This argument is optional. If it’s not provided, we retrieve all records from the table
 
 Note that this project is currently configured to connect to a SQL Server database, but other relational databases are also supported.
