@@ -19,7 +19,7 @@ Note that you can also use an integrated development environment (IDE) such as [
 You'll also need data:
 
 * **GTFS data** - A zip file containing GTFS data from the same time period as the archived GTFS-realtime data.  Check out [Transitland](https://transit.land/) (and in particular the [feed_versions API](http://transit.land/api/v1/feed_versions)), [TransitFeeds.com](http://transitfeeds.com/) or [GTFS Data Exchange *(Deprecated)*](http://www.gtfs-data-exchange.com/) to find archived GTFS data. 
-* **Archived GTFS-realtime data** - Data in a relational database (e.g., MS SQL Server) that has been archived using the [gtfsrdb](https://github.com/mattwigway/gtfsrdb) tool (or another tool that uses the same database schema) 
+* **Archived GTFS-realtime data** - Data in a relational database (e.g., MS SQL Server) that has been archived using the [gtfsrdb](https://github.com/mattwigway/gtfsrdb) tool (or another tool that uses the same database schema).  See [TransitFeeds.com](http://transitfeeds.com/search?q=gtfsrt) for a list of publicly-available GTFS-realtime feeds.
 
 The following instructions are for building the project from the command line using Maven.
 
