@@ -54,7 +54,7 @@ Before running the application, create an `info.txt` file in project's `src/main
     * `password : user password`
     * `database : name of the database to connect to`
   
-Finally, to run the application execute the command:
+Finally, to run the application execute a command in the format:
 
 `java -jar target/ontime-performance-calculator.jar <path/to/GTFS_file.zip> <arrival_time OR departure_time> [number of records to fetch]`
 
@@ -62,5 +62,11 @@ Finally, to run the application execute the command:
     1.	Path to static GTFS zip file
     2.	`arrival_time` or `departure_time` - This argument tells the application whether to calculate schedule_deviation using           arrival_time or departure_time at each stop
     3.	Specify number of records to fetch from database table - This argument is optional. If it’s not provided, we retrieve all records from the table
+    
+Example command:
+
+    `java -jar target/ontime-performance-calculator.jar gtfs.zip arrival_time`
+
+The above command assumes that the `gtfs.zip` file is in the same directory you're executing the `java` command from.
 
 Note that this project is currently configured to connect to a SQL Server database, but other relational databases are also supported.
