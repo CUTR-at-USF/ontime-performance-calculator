@@ -65,7 +65,7 @@ Finally, to run the application execute a command in the format:
     
 Example command:
 
-    `java -jar target/ontime-performance-calculator.jar gtfs.zip arrival_time`
+    java -jar target/ontime-performance-calculator.jar gtfs.zip arrival_time
 
 The above command assumes that the `gtfs.zip` file is in the same directory you're executing the `java` command from.
 
